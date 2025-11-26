@@ -45,10 +45,10 @@ export const MainContent: MainContentType = {
 ---------------------------------------------------- */
 
 export const backendConfig: BackendConfigType = {
-  base: "http://localhost:3000/api/v1",
-  origin: "http://localhost:3000",
-  // base: "https://api.hidezign.com/api/v1",
-  // origin: "https://api.hidezign.com",
+  // base: "http://localhost:3000/api/v1",
+  // origin: "http://localhost:3000",
+  base: "https://api.hidezign.com/api/v1",
+  origin: "https://api.hidezign.com",
 };
 
 /* ----------------------------------------------------
