@@ -99,3 +99,17 @@ export async function createProject(payload: any) {
         };
     }
 }
+
+export async function deleteProject(projectId: string){
+    try{
+        const response = await Axios.delete(`${adminApi}/delete-project/${projectId}`);
+        return response.data;
+
+    } catch (err) {
+        const error = err as AxiosError<ErrorResponse>;
+        return error.response?.data || {
+            status: false,
+            message: "Something went wrong",
+        };
+    }
+}

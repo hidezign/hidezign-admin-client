@@ -1,4 +1,4 @@
-import { getAllProjects } from "@/API/admin.api";
+import { deleteProject, getAllProjects } from "@/API/admin.api";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageMeta from "@/components/common/PageMeta";
 import PageLoader from "@/components/PageLoader";
@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { GoLinkExternal } from "react-icons/go";
 import { IoTrashBin } from "react-icons/io5";
+import { Modal } from "@/components/ui/modal";
+import DangerModal from "@/components/ui/modal/DangerModal";
 // import React from "react";
 
 interface Order {
@@ -67,6 +69,31 @@ const AllProjects = () => {
   }, []);
 
   // const tableData: Order[]
+
+  const [deleteProjectCheck, setDeleteProjectCheck] = useState<boolean>(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  const handleDelete = async (projectId: string) => {
+    try {
+      setLoading(true);
+      await deleteProject(projectId);
+      toast.success("Project deleted successfully", {
+        duration: 5000,
+        className: "bg-card text-card-foreground border-border",
+      });
+      // Refresh the project list
+      fetchAllProjects();
+    } catch (error) {
+      toast.error("Failed to delete project", {
+        description: (error as Error).message || "",
+        duration: 5000,
+        className: "bg-card text-card-foreground border-border",
+      });
+    } finally {
+      setLoading(false);
+      setDeleteProjectCheck(false);
+    }
+  }
 
   return (
     <>
@@ -225,15 +252,17 @@ const AllProjects = () => {
                         </Link>
 
                         {/* DELETE */}
-                        <Link to={`/project-details/${order._id}`}>
                           <Button
                             variant="outline"
                             size="sm"
+                          onClick={() => {
+                            setDeleteProjectCheck(true);
+                            setSelectedProjectId(order._id);
+                          }}
                             className="rounded-full text-red-600 border-red-600 hover:text-white hover:bg-red-600"
                           >
                             <IoTrashBin />
-                          </Button>
-                        </Link>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -243,6 +272,18 @@ const AllProjects = () => {
           </div>
         </ComponentCard>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteProjectCheck && (
+        <DangerModal
+          isOpen={deleteProjectCheck}
+          onClose={() => setDeleteProjectCheck(false)}
+          onConfirm={() => handleDelete(selectedProjectId)}
+          title="Delete Project"
+          message="Are you sure you want to delete this project? This action cannot be undone."
+          confirmLabel="Yes, Delete"
+        />
+      )}
     </>
   );
 };
