@@ -9,6 +9,9 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { GoLinkExternal } from "react-icons/go";
+import { IoTrashBin } from "react-icons/io5";
 // import React from "react";
 
 interface Order {
@@ -135,9 +138,11 @@ const AllProjects = () => {
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                   {projects.map((order) => (
                     <TableRow key={order?._id}>
+
+                      {/* Image */}
                       <TableCell className="px-5 py-4 sm:px-6 text-start">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 overflow-hidden rounded-md">
+                          <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
                             <img
                               width={40}
                               height={40}
@@ -147,16 +152,23 @@ const AllProjects = () => {
                               alt={
                                 order?.image?.publicId
                               }
+                              className="object-cover"
                             />
                           </div>
                         </div>
                       </TableCell>
+
+                      {/* Title */}
                       <TableCell className="px-4 py-3 font-medium text-gray-800 text-start text-theme-sm dark:text-white/90">
                         {order?.title}
                       </TableCell>
+
+                      {/* Description */}
                       <TableCell className="px-4 py-3 font-medium text-gray-800 text-start text-theme-sm dark:text-white/90">
                         {order?.description}
                       </TableCell>
+
+                      {/* Active Status */}
                       <TableCell className="px-4 py-3 font-medium text-gray-800 text-start text-theme-sm dark:text-white/90">
                         {order?.isActive ? (
                           <Badge color="success">Active</Badge>
@@ -164,38 +176,64 @@ const AllProjects = () => {
                           <Badge color="dark">Inactive</Badge>
                         )}
                       </TableCell>
+
+                      {/* Show on Home */}
                       <TableCell className="px-4 py-3 font-medium text-gray-800 text-start text-theme-sm dark:text-white/90">
                         {order?.isShowHome ? (
-                          <Badge color="success">Active</Badge>
+                          <Badge color="success">
+                            <FaEye />
+                          </Badge>
                         ) : (
-                          <Badge color="dark">Inactive</Badge>
+                            <Badge color="dark">
+                              <FaEyeSlash />
+                            </Badge>
                         )}
                       </TableCell>
+
+                      {/* Live URL */}
                       <TableCell className="px-4 py-3 font-medium text-gray-800 text-start text-theme-sm dark:text-white/90">
                         {order?.liveUrl ? (
-                          <Button
-                            // href={order.liveUrl}
-                            variant="outline"
-                            size="sm"
-                          >
-                            <Link to={order.liveUrl} target="_blank" rel="noopener noreferrer">
-                              Visit
-                            </Link>
-                          </Button>
+                          <Link to={order.liveUrl} target="_blank" rel="noopener noreferrer">
+                            <Button
+                              // href={order.liveUrl}
+                              variant="outline"
+                              size="sm"
+                            >
+                              <GoLinkExternal />
+                            </Button>
+                          </Link>
                         ) : ("-")}
                       </TableCell>
+
+                      {/* Created At */}
                       <TableCell className="px-4 py-3 font-medium text-gray-800 text-start text-theme-sm dark:text-white/90">
                         {new Date(order?.createdAt).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                        >
-                          <Link to={`/project-details/${order._id}`}>
-                            View Details
-                          </Link>
-                        </Button>
+
+                      {/* Actions */}
+                      <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 flex gap-2">
+
+                        {/* VIEW */}
+                        <Link to={`/project-details/${order._id}`}>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className="rounded-full border hover:border-blue-500 hover:text-blue-500 hover:bg-white transition-all duration-300"
+                          >
+                            <FaEye />
+                          </Button>
+                        </Link>
+
+                        {/* DELETE */}
+                        <Link to={`/project-details/${order._id}`}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-full text-red-600 border-red-600 hover:text-white hover:bg-red-600"
+                          >
+                            <IoTrashBin />
+                          </Button>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}
