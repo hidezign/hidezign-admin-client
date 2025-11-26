@@ -87,7 +87,7 @@ export async function getAllProjects() {
 }
 
 
-export async function createProject(payload) {
+export async function createProject(payload: any) {
     try {
         const response = await Axios.post(`${adminApi}/create-project`, payload);
         return response.data;

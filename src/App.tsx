@@ -18,19 +18,17 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-import { loginSuccess } from "./Redux/Reducer/authReducer";
-import { adminProfile } from "./API/admin.api";
+import { useSelector } from "react-redux";
 import { Navigate } from "react-router";
 import { Toaster } from "sonner";
 import AllProjects from "./pages/Projects/AllProjects";
 import CreateProject from "./pages/Projects/CreateProject";
 import ProjectDetails from "./pages/Projects/ProjectDetails";
+import { RootState } from "./Redux/store";
 
 export default function App() {
-    const dispatch = useDispatch();
-    const { token, role } = useSelector((state: any) => state.auth);
+    // const dispatch = useDispatch();
+    const { token, role } = useSelector((state: RootState) => state.auth);
 
     // useEffect(() => {
     //     const getAdminData = async () => {

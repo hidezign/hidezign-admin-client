@@ -1,98 +1,63 @@
+// src/utils/validators.ts
+
+export interface ProductImages {
+    mainImage?: unknown;
+    leftSideImage?: unknown;
+    rightSideImage?: unknown;
+    topViewImage?: unknown;
+    bottomViewImage?: unknown;
+    backImage?: unknown;
+    benefitsImage?: unknown;
+    highlightImage?: unknown;
+    otherImage?: unknown;
+}
+
 /**
  * Validates the password input to ensure it is not empty and meets the minimum length requirement.
- *
- * @param {string} password - The password input to be validated.
- * @returns {string} - An error message if the password is empty or too short, otherwise an empty string.
  */
-export function passwordValidator(password: string) {
+export function passwordValidator(password: string | undefined | null): string {
     if (!password) return "Password can't be empty.";
 
     // Minimum length requirement
-    if (password.length < 8)
-        return "Password must be at least 8 characters long.";
+    if (password.length < 8) return "Password must be at least 8 characters long.";
 
     // Check for at least one uppercase letter
-    if (!/[A-Z]/.test(password))
-        return "Password must contain at least one uppercase letter.";
+    if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter.";
 
     // Check for at least one lowercase letter
-    if (!/[a-z]/.test(password))
-        return "Password must contain at least one lowercase letter.";
+    if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter.";
 
     // Check for at least one digit
-    if (!/[0-9]/.test(password))
-        return "Password must contain at least one digit.";
+    if (!/[0-9]/.test(password)) return "Password must contain at least one digit.";
 
     // Check for at least one special character
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
         return "Password must contain at least one special character.";
 
-    return ""; // Return an empty string if all validations pass
+    return "";
 }
-export function confirmPasswordValidator(password: string, confirmPassword: string) {
+
+export function confirmPasswordValidator(
+    password: string | undefined | null,
+    confirmPassword: string | undefined | null
+): string {
     if (!confirmPassword) return "Confirm Password can't be empty.";
     if (password !== confirmPassword) return "Passwords do not match.";
     return "";
 }
 
-// old
-// export function passwordValidator(password) {
-//     if (!password) return "Password can't be empty.";
-//     if (password.length < 5)
-//         return "Password must be at least 5 characters long.";
-//     return "";
-// }
-
-
-
-export function urlValidator(url: string) {
-    if (!url) return "URL can't be empty.";
-    const urlPattern = new RegExp(
-        "^(https?:\\/\\/)?" + // protocol
-        "((([a-zA-Z0-9$-_@.&+!*\"(),]|(%[0-9a-fA-F]{2}))+)(:([0-9]{1,5}))?@)?" + // authentication
-        "((\\[(?:[a-fA-F0-9:]+)\\])|(([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})))" + // host and domain
-        "(\\:[0-9]{1,5})?" + // port
-        "(\\/([a-zA-Z0-9$-_@.&+!*\"(),]|(%[0-9a-fA-F]{2}))*)*" + // path
-        "(\\?([a-zA-Z0-9$-_@.&+!*\"(),=]|(%[0-9a-fA-F]{2}))*" + // query string
-        "(\\#([a-zA-Z0-9$-_@.&+!*\"(),=]|(%[0-9a-fA-F]{2}))*)?$", // fragment locator
-        "i"
-    );
-    if (!urlPattern.test(url)) return "Please enter a valid URL.";
-    return "";
-}
-
-
-
-/**
- * Validates the name input to ensure it is not empty.
- *
- * @param {string} name - The name input to be validated.
- * @returns {string} - An error message if the name is empty, otherwise an empty string.
- */
-export function nameValidator(name: string) {
+export function nameValidator(name: string | undefined | null): string {
     if (!name) return "Name can't be empty.";
     return "";
 }
 
-/**
-* Validates the number input to ensure it is not empty and is a valid number.
-*
-* @param {string} number - The number input to be validated.
-* @returns {string} - An error message if the number is empty or invalid, otherwise an empty string.
-*/
-export function alphabetValidator(value: string) {
+export function alphabetValidator(value: string | undefined | null): string {
     if (!value) return "This field can't be empty.";
     if (!/^[A-Za-z]+$/.test(value)) return "Only alphabetic characters are allowed.";
     return "";
 }
 
-/**
- * Validates the email input to ensure it is not empty, is a valid email format, and does not contain spaces.
- *
- * @param {string} email - The email input to be validated.
- * @returns {string} - An error message if the email is empty, invalid, or contains spaces, otherwise an empty string.
- */
-export function emailValidator(email: string) {
+export function emailValidator(email: string | undefined | null): string {
     const re = /\S+@\S+\.\S+/;
     if (!email) return "Email can't be empty.";
     if (!re.test(email)) return "Oops! We need a valid email address.";
@@ -101,311 +66,182 @@ export function emailValidator(email: string) {
 }
 
 /**
- * Validates the phone number input to ensure it is not empty and is a valid 10-digit number.
- *
- * @param {string} phone - The phone number input to be validated.
- * @returns {string} - An error message if the phone number is empty or invalid, otherwise an empty string.
+ * phone can be string or number, required default true
  */
-export function phoneValidator(phone: string, required = true) {
-    if (required && !phone) return "Phone number can't be empty.";
-    const isValidPhone = /^\d{10}$/;
-    if (!isValidPhone.test(phone))
-        return "Please enter a valid 10-digit phone number.";
+export function phoneValidator(phone?: string | number | null, required = true): string {
+    if ((phone === undefined || phone === null || phone === "") && required)
+        return "Phone number can't be empty.";
+    if (phone === undefined || phone === null || phone === "") return "";
+
+    const phoneStr = String(phone).trim();
+    if (!/^\d{10}$/.test(phoneStr)) return "Please enter a valid 10-digit phone number.";
     return "";
 }
 
 /**
- * Validates the OTP input to ensure it is not empty and is a 4-digit number.
- *
- * @param {string} otp - The OTP input to be validated.
- * @returns {string} - An error message if OTP is empty or not a 4-digit number, otherwise an empty string.
+ * OTP validator expects a 6-digit numeric OTP
  */
-export function otpValidator(otp: string) {
-    const isValidOTP = /^\d{6}$/;
-    if (!otp) return "OTP can't be empty.";
-    if (!isValidOTP.test(otp)) return "OTP must be a 6-digit number.";
+export function otpValidator(otp?: string | number | null): string {
+    if (otp === undefined || otp === null || otp === "") return "OTP can't be empty.";
+    const otpStr = String(otp).trim();
+    if (!/^\d{6}$/.test(otpStr)) return "OTP must be a 6-digit number.";
     return "";
 }
 
-/**
- * Validates a generic field input to ensure it is not empty.
- *
- * @param {string} value - The field input to be validated.
- * @returns {string} - An error message if the field is empty, otherwise an empty string.
- */
-export function fieldValidator(value: string, required = true) {
-    if (required && !value) return "This Field can't be empty.";
+export function fieldValidator(value: unknown, required = true): string {
+    if (required && (value === undefined || value === null || value === "")) return "This Field can't be empty.";
     return "";
 }
 
-/**
- * Validates the tags input to ensure it is not empty and does not exceed the maximum limit.
- *
- * @param {string} tags - The tags input to be validated.
- * @returns {string} - An error message if the tags are empty or exceed the maximum limit, otherwise an empty string.
- */
-export function tagValidator(tags) {
+export function tagValidator(tags?: string | null): string {
     if (!tags) return "This Field can't be empty.";
-    if (tags.split(",").length > 15) return "Max 15 tags allowed";
+    // split by comma and ignore empty items produced by extra commas
+    const tagCount = tags.split(",").filter(t => t.trim() !== "").length;
+    if (tagCount > 15) return "Max 15 tags allowed";
     return "";
 }
 
-/**
- * Validates the images input to ensure it is not empty.
- *
- * @param {Object} images - The images input to be validated.
- * @returns {string} - An error message if the images are empty, otherwise an empty string.
- */
-export function imagesValidator(images) {
-    if (
-        !images.mainImage ||
-        !images.leftSideImage ||
-        !images.rightSideImage ||
-        !images.topViewImage ||
-        !images.bottomViewImage ||
-        !images.backImage ||
-        !images.benefitsImage ||
-        !images.highlightImage ||
-        !images.otherImage
-    )
-        return "Please upload all the images.";
-    return "";
-}
+export function imagesValidator(images: ProductImages | undefined | null): string {
+    if (!images) return "Please upload all the images.";
 
-/**
- * Validates the number input to ensure it is not empty and is a valid number.
- *
- * @param {string} number - The number input to be validated.
- * @returns {string} - An error message if the number is empty or invalid, otherwise an empty string.
- */
-export function numberValidator(number, limit, required = true) {
-    if (required && !number) return "This field can't be empty.";
-    if (isNaN(number)) return "Please enter a valid number.";
-    if (number < 0) return "This field can't be negative.";
-    if (limit && number > limit) return `Number can't be more than ${limit}.`;
-    return "";
-}
+    const requiredKeys: (keyof ProductImages)[] = [
+        "mainImage",
+        "leftSideImage",
+        "rightSideImage",
+        "topViewImage",
+        "bottomViewImage",
+        "backImage",
+        "benefitsImage",
+        "highlightImage",
+        "otherImage",
+    ];
 
-export function pincodeValidator(pincode, required = true) {
-    // Check if the pincode is required and empty
-    if (required && !pincode) return "Pincode can't be empty.";
-
-    // Ensure the pincode contains only digits and is exactly 6 digits long
-    const isValidPincode = /^\d{6}$/;
-    if (!/^\d+$/.test(pincode))
-        return "Pincode must contain only numeric digits.";
-    if (!isValidPincode.test(pincode))
-        return "Please enter a valid 6-digit pincode.";
-
-    return ""; // Return an empty string if all validations pass
-}
-
-export function gstValidator(gstNumber) {
-    // Check if the GST number is provided
-    if (!gstNumber) return "GST number can't be empty.";
-
-    // Define the regex pattern for GST validation
-    // Example: 12ABCDE1234F1Z5
-    const gstPattern =
-        /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}[Z][A-Z0-9]{1}$/;
-
-    // Test the GST number against the pattern
-    if (!gstPattern.test(gstNumber)) {
-        return "Please enter a valid GST number.";
+    for (const key of requiredKeys) {
+        if (!images[key]) return "Please upload all the images.";
     }
 
-    return ""; // Return an empty string if all validations pass
+    return "";
 }
 
-export function panValidator(panNumber) {
-    // Check if the PAN number is provided
+export function numberValidator(
+    value: string | number | undefined | null,
+    limit?: number,
+    required = true
+): string {
+    if ((value === undefined || value === null || value === "") && required) return "This field can't be empty.";
+    if (value === undefined || value === null || value === "") return "";
+
+    const num = typeof value === "number" ? value : Number(String(value).trim());
+    if (Number.isNaN(num)) return "Please enter a valid number.";
+    if (num < 0) return "This field can't be negative.";
+    if (limit !== undefined && num > limit) return `Number can't be more than ${limit}.`;
+    return "";
+}
+
+export function pincodeValidator(pincode?: string | number | null, required = true): string {
+    if ((pincode === undefined || pincode === null || pincode === "") && required) return "Pincode can't be empty.";
+    if (pincode === undefined || pincode === null || pincode === "") return "";
+
+    const pinStr = String(pincode).trim();
+    if (!/^\d+$/.test(pinStr)) return "Pincode must contain only numeric digits.";
+    if (!/^\d{6}$/.test(pinStr)) return "Please enter a valid 6-digit pincode.";
+    return "";
+}
+
+export function gstValidator(gstNumber?: string | null): string {
+    if (!gstNumber) return "GST number can't be empty.";
+
+    const gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/;
+    if (!gstPattern.test(gstNumber)) return "Please enter a valid GST number.";
+    return "";
+}
+
+export function panValidator(panNumber?: string | null): string {
     if (typeof panNumber !== "string" || !panNumber.trim()) {
         return "PAN number can't be empty.";
     }
-
-    // Trim any extra spaces around the PAN number
-    panNumber = panNumber.trim();
-
-    // Define the regex pattern for PAN validation
-    // Example: ABCDE1234F
+    const pan = panNumber.trim().toUpperCase();
     const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-
-    // Test the PAN number against the pattern
-    if (!panPattern.test(panNumber)) {
-        return "Please enter a valid PAN number.";
-    }
-
-    return ""; // Return an empty string if all validations pass
+    if (!panPattern.test(pan)) return "Please enter a valid PAN number.";
+    return "";
 }
 
 /**
  * Validates an Indian IFSC code.
- *
- * @param {string} ifsc - The IFSC code to validate.
- * @returns {string} - An error message if validation fails, otherwise an empty string.
  */
-export function ifscValidator(ifsc) {
-    // Check if the IFSC code is provided
+export function ifscValidator(ifsc?: string | null): string {
     if (!ifsc) return "IFSC code can't be empty.";
-
-    // Define the regex pattern for IFSC code validation
-    // Allows digits in the branch code
-    const ifscPattern = /^[A-Z]{4}0[A-Z0-9]{5}$/;
-
-    // Test the IFSC code against the pattern
-    if (!ifscPattern.test(ifsc)) {
-        return "Please enter a valid IFSC code.";
-    }
-
-    return ""; // Return an empty string if all validations pass
+    const ifscPattern = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+    if (!ifscPattern.test(ifsc)) return "Please enter a valid IFSC code.";
+    return "";
 }
-
-export function validateLatitude(latitude) {
-    // Check if latitude is provided
-    if (latitude === undefined || latitude === '') {
-        return "Latitude can't be empty.";
-    }
-
-    // Check if the input is a valid number
-    const lat = parseFloat(latitude);
-    if (isNaN(lat)) {
-        return "Latitude must be a number.";
-    }
-
-    // Validate if the number is within the valid latitude range
-    if (lat < -90 || lat > 90) {
-        return "Latitude must be between -90 and 90.";
-    }
-
-    // Additional check to ensure no non-numeric characters
-    if (!/^-?\d*\.?\d+$/.test(latitude)) {
-        return "Latitude must be a valid number (integer or float).";
-    }
-
-    return ""; // Return an empty string if all validations pass
-}
-
-export function validateLongitude(longitude) {
-    // Check if longitude is provided
-    if (longitude === undefined || longitude === '') {
-        return "Longitude can't be empty.";
-    }
-
-    // Check if the input is a valid number
-    const lon = parseFloat(longitude);
-    if (isNaN(lon)) {
-        return "Longitude must be a number.";
-    }
-
-    // Validate if the number is within the valid longitude range
-    if (lon < -180 || lon > 180) {
-        return "Longitude must be between -180 and 180.";
-    }
-
-    // Additional check to ensure no non-numeric characters
-    if (!/^-?\d*\.?\d+$/.test(longitude)) {
-        return "Longitude must be a valid number (integer or float).";
-    }
-
-    return ""; // Return an empty string if all validations pass
-}
-
-
-
-// src/utils/validators.js
 
 /**
- * Validates the account holder's name.
- * 
- * @param {string} accountHolderName - The account holder's name input.
- * @returns {string} - Error message if invalid, otherwise an empty string.
+ * Latitude and longitude validators accept string or number.
  */
-export function accountHolderNameValidator(accountHolderName) {
+export function validateLatitude(latitude?: string | number | null): string {
+    if (latitude === undefined || latitude === null || latitude === "") return "Latitude can't be empty.";
+
+    const latNum = typeof latitude === "number" ? latitude : parseFloat(String(latitude).trim());
+    if (Number.isNaN(latNum)) return "Latitude must be a number.";
+    if (latNum < -90 || latNum > 90) return "Latitude must be between -90 and 90.";
+    if (!/^-?\d*\.?\d+$/.test(String(latitude).trim())) return "Latitude must be a valid number (integer or float).";
+    return "";
+}
+
+export function validateLongitude(longitude?: string | number | null): string {
+    if (longitude === undefined || longitude === null || longitude === "") return "Longitude can't be empty.";
+
+    const lonNum = typeof longitude === "number" ? longitude : parseFloat(String(longitude).trim());
+    if (Number.isNaN(lonNum)) return "Longitude must be a number.";
+    if (lonNum < -180 || lonNum > 180) return "Longitude must be between -180 and 180.";
+    if (!/^-?\d*\.?\d+$/.test(String(longitude).trim())) return "Longitude must be a valid number (integer or float).";
+    return "";
+}
+
+/* ----------------- Banking / UPI validators ----------------- */
+
+export function accountHolderNameValidator(accountHolderName?: string | null): string {
     if (!accountHolderName) return "Account Holder Name can't be empty.";
     return "";
 }
 
-/**
- * Validates the account number.
- * 
- * @param {string} accountNumber - The account number input.
- * @returns {string} - Error message if invalid, otherwise an empty string.
- */
-export function accountNumberValidator(accountNumber) {
-    const isValidAccountNumber = /^\d{9,16}$/;  // Account number should be between 12-16 digits
-    if (!accountNumber) return "Account Number can't be empty.";
-    if (!isValidAccountNumber.test(accountNumber))
-        return "Account Number must be between 9 and 16 digits.";
+export function accountNumberValidator(accountNumber?: string | number | null): string {
+    if (accountNumber === undefined || accountNumber === null || accountNumber === "") return "Account Number can't be empty.";
+    const accStr = String(accountNumber).trim();
+    const isValidAccountNumber = /^\d{9,16}$/; // between 9 and 16 digits
+    if (!isValidAccountNumber.test(accStr)) return "Account Number must be between 9 and 16 digits.";
     return "";
 }
 
-/**
- * Validates the IFSC code.
- * 
- * @param {string} ifscCode - The IFSC code input.
- * @returns {string} - Error message if invalid, otherwise an empty string.
- */
-export function ifscCodeValidator(ifscCode) {
-    const isValidIfsc = /^[A-Za-z]{4}0[A-Za-z0-9]{5}$/;  // IFSC code pattern
+export function ifscCodeValidator(ifscCode?: string | null): string {
     if (!ifscCode) return "IFSC Code can't be empty.";
+    const isValidIfsc = /^[A-Za-z]{4}0[A-Za-z0-9]{5}$/;
     if (!isValidIfsc.test(ifscCode)) return "Invalid IFSC Code.";
     return "";
 }
 
-/**
- * Validates the branch name.
- * 
- * @param {string} branch - The branch input.
- * @returns {string} - Error message if invalid, otherwise an empty string.
- */
-export function branchValidator(branch) {
+export function branchValidator(branch?: string | null): string {
     if (!branch) return "Branch can't be empty.";
     return "";
 }
 
-/**
- * Validates the bank name.
- * 
- * @param {string} bankName - The bank name input.
- * @returns {string} - Error message if invalid, otherwise an empty string.
- */
-export function bankNameValidator(bankName) {
+export function bankNameValidator(bankName?: string | null): string {
     if (!bankName) return "Bank Name can't be empty.";
     return "";
 }
 
-/**
- * Validates the UPI holder name.
- * 
- * @param {string} upiHolderName - The UPI holder name input.
- * @returns {string} - Error message if invalid, otherwise an empty string.
- */
-export function upiHolderNameValidator(upiHolderName) {
+export function upiHolderNameValidator(upiHolderName?: string | null): string {
     if (!upiHolderName) return "UPI Holder Name can't be empty.";
     return "";
 }
 
-/**
- * Validates the UPI address.
- * 
- * @param {string} upiAddress - The UPI address input.
- * @returns {string} - Error message if invalid, otherwise an empty string.
- */
-export function upiAddressValidator(upiAddress) {
-    // const isValidUpi = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Valid UPI address format
+export function upiAddressValidator(upiAddress?: string | null): string {
     if (!upiAddress) return "UPI Address can't be empty.";
-    // if (!isValidUpi.test(upiAddress)) return "Invalid UPI Address.";
     return "";
 }
 
-/**
- * Validates the UPI QR code file.
- * 
- * @param {Object} qrCode - The UPI QR code file input.
- * @returns {string} - Error message if invalid, otherwise an empty string.
- */
-export function upiQrCodeValidator(qrCode) {
-    if (qrCode && !/\.(jpg|jpeg|png)$/i.test(qrCode.name))
-        return "QR Code must be an image file (jpg, jpeg, or png).";
+export function upiQrCodeValidator(qrCode?: { name?: string } | null): string {
+    if (qrCode && qrCode.name && !/\.(jpg|jpeg|png)$/i.test(qrCode.name)) return "QR Code must be an image file (jpg, jpeg, or png).";
     return "";
 }

@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { Link, useNavigate } from "react-router";
-import { persistor } from "@/Redux/store";
+import { useNavigate } from "react-router";
+import { persistor, RootState } from "@/Redux/store";
 import { logout } from "@/Redux/Reducer/authReducer";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function UserDropdown() {
-    const { user } = useSelector((state) => state.auth);
+    const { user } = useSelector((state: RootState) => state.auth);
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();

@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
+// src/components/auth/SignInForm.tsx
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
@@ -14,24 +15,31 @@ import { loginSuccess } from "@/Redux/Reducer/authReducer";
 import { loginAdmin } from "@/API/admin.api";
 import PageLoader from "../PageLoader";
 
-export default function SignInForm() {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const [showPassword, setShowPassword] = useState(false);
-    const [isChecked, setIsChecked] = useState(false);
+type SignInFormData = {
+    email: string;
+    password: string;
+};
 
-    const [formData, setFormData] = useState({
+type FormErrors = Partial<Record<keyof SignInFormData, string>>;
+
+export default function SignInForm(): React.ReactElement {
+    const dispatch = useDispatch<any>(); // replace `any` with AppDispatch from your store if available
+    const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [isChecked, setIsChecked] = useState<boolean>(false);
+
+    const [formData, setFormData] = useState<SignInFormData>({
         email: "",
         password: "",
     });
-    const [formDataErr, setFormDataErr] = useState({});
+    const [formDataErr, setFormDataErr] = useState<FormErrors>({});
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
-    const handleChange = (e, field) => {
-        const { value } = e.target;
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof SignInFormData) => {
+        const value = e.target.value ?? "";
 
-        let error = null;
+        let error: string | null = null;
 
         if (field === "email") {
             error = emailValidator(value);
@@ -39,36 +47,36 @@ export default function SignInForm() {
             error = passwordValidator(value);
         }
 
-        setFormDataErr({
-            ...formDataErr,
-            [field]: error,
-        });
+        setFormDataErr((prev) => ({
+            ...prev,
+            [field]: error || "",
+        }));
 
-        setFormData({
-            ...formData,
+        setFormData((prev) => ({
+            ...prev,
             [field]: value,
-        });
+        }));
     };
 
-    const validateFields = () => {
+    const validateFields = (): boolean => {
         let isValid = true;
-        let errors = { ...formDataErr };
+        const errors: FormErrors = { ...formDataErr };
 
-        Object.keys(formData).forEach((field) => {
-            if (!formData[field]) {
-                errors[field] = `${camelCaseToReadable(field)} can't be empty.`;
-                // console.log("false ho gaya")
+        (Object.keys(formData) as Array<keyof SignInFormData>).forEach((field) => {
+            const value = formData[field];
+            if (!value || String(value).trim() === "") {
+                errors[field] = `${camelCaseToReadable(String(field))} can't be empty.`;
                 isValid = false;
             } else {
                 errors[field] = "";
             }
         });
-        // console.log(errors, isValid);
+
         setFormDataErr(errors);
         return isValid;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const isValid = validateFields();
         if (isValid) {
@@ -83,7 +91,7 @@ export default function SignInForm() {
                 });
                 return;
             } else {
-                submitSignUpDetails();
+                submitSignInDetails();
             }
         }
     };
@@ -97,10 +105,10 @@ export default function SignInForm() {
         setIsChecked(false);
     };
 
-    const submitSignUpDetails = async () => {
+    const submitSignInDetails = async () => {
         try {
             setLoading(true);
-            const response = await loginAdmin(formData);
+            const response: any = await loginAdmin(formData); // type to be replaced with API response type
             if (response?.success) {
                 dispatch(
                     loginSuccess({
@@ -109,27 +117,36 @@ export default function SignInForm() {
                         user: response?.user,
                     })
                 );
-                toast.success("SignUp successfull", {
+                toast.success("SignIn successful", {
+                    duration: 5000,
+                    className: "bg-card text-card-foreground border-border",
+                });
+            } else {
+                // handle explicit failure response
+                toast.error("SignIn failed", {
+                    description: response?.message || "Failed to sign in. Please try again.",
                     duration: 5000,
                     className: "bg-card text-card-foreground border-border",
                 });
             }
-        } catch (error) {
-            console.log(error);
-            setLoading(false);
+        } catch (err: unknown) {
+            console.error(err);
+            const anyErr = err as any;
             toast.error("Submission Failed", {
                 description:
-                    error?.response?.data?.message ||
+                    anyErr?.response?.data?.message ||
+                    anyErr?.message ||
                     "Failed to submit details. Please try again later.",
                 duration: 5000,
                 className: "bg-card text-card-foreground border-border",
             });
         } finally {
-            navigate("/");
-            resetFunctions();
             setLoading(false);
+            resetFunctions();
+            navigate("/");
         }
     };
+
     return (
         <>
             {loading && <PageLoader />}
@@ -145,58 +162,43 @@ export default function SignInForm() {
                             </p>
                         </div>
                         <div>
-                            <form onSubmit={(e) => handleSubmit(e)}>
+                            <form onSubmit={handleSubmit}>
                                 <div className="space-y-6">
                                     <div>
                                         <Label>
                                             Email
-                                            <span className="text-error-500">
-                                                *
-                                            </span>
+                                            <span className="text-error-500">*</span>
                                         </Label>
                                         <Input
                                             type="email"
                                             id="email"
                                             name="email"
                                             placeholder="Enter your email"
-                                            onChange={(e) =>
-                                                handleChange(e, "email")
-                                            }
-                                            error={formDataErr.email}
+                                            onChange={(e) => handleChange(e, "email")}
+                                            error={Boolean(formDataErr.email)}
                                             required={true}
                                         />
                                     </div>
-                                    {/* <!-- Password --> */}
+
+                                    {/* Password */}
                                     <div>
                                         <Label>
                                             Password
-                                            <span className="text-error-500">
-                                                *
-                                            </span>
+                                            <span className="text-error-500">*</span>
                                         </Label>
                                         <div className="relative">
                                             <Input
                                                 placeholder="Enter your password"
-                                                type={
-                                                    showPassword
-                                                        ? "text"
-                                                        : "password"
-                                                }
+                                                type={showPassword ? "text" : "password"}
                                                 id="password"
                                                 name="password"
                                                 value={formData.password}
-                                                onChange={(e) =>
-                                                    handleChange(e, "password")
-                                                }
-                                                error={formDataErr.password}
+                                                onChange={(e) => handleChange(e, "password")}
+                                                error={Boolean(formDataErr.password)}
                                                 required={true}
                                             />
                                             <span
-                                                onClick={() =>
-                                                    setShowPassword(
-                                                        !showPassword
-                                                    )
-                                                }
+                                                onClick={() => setShowPassword((s) => !s)}
                                                 className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
                                             >
                                                 {showPassword ? (
@@ -207,23 +209,17 @@ export default function SignInForm() {
                                             </span>
                                         </div>
                                     </div>
+
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <Checkbox
-                                                checked={isChecked}
-                                                onChange={setIsChecked}
-                                            />
-                                            <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                                                Keep me logged in
-                                            </span>
+                                            <Checkbox checked={isChecked} onChange={(checked: boolean) => setIsChecked(checked)} />
+                                            <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">Keep me logged in</span>
                                         </div>
-                                        <Link
-                                            to="/reset-password"
-                                            className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                                        >
+                                        <Link to="/reset-password" className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">
                                             Forgot password?
                                         </Link>
                                     </div>
+
                                     <div>
                                         <Button className="w-full" size="sm">
                                             Sign in
@@ -234,11 +230,8 @@ export default function SignInForm() {
 
                             <div className="mt-5">
                                 <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                                    Don&apos;t have an account? {""}
-                                    <Link
-                                        to="/signup"
-                                        className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                                    >
+                                    Don&apos;t have an account?{" "}
+                                    <Link to="/signup" className="text-brand-500 hover:text-brand-600 dark:text-brand-400">
                                         Sign Up
                                     </Link>
                                 </p>

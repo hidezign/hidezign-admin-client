@@ -1,6 +1,9 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+// src/utils/MainContent.ts
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import logo from "../assets/logo.svg";
 import { store } from "../Redux/store";
+// If you have RootState exported from your store, import it:
+// import type { RootState } from "../Redux/store";
 
 /* ----------------------------------------------------
    Types
@@ -63,14 +66,21 @@ export const Axios: AxiosInstance = axios.create({
 
 Axios.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // If you have a typed RootState, replace `any` with RootState:
+    // const state = store.getState() as RootState;
     const state = store.getState() as any;
     const token = state?.auth?.token;
 
     if (token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${token}`,
-      };
+      // Option A: Mutate the existing headers object if present (preferred)
+      if (config.headers && typeof config.headers === "object") {
+        const headers = config.headers as AxiosRequestHeaders;
+        headers.Authorization = `Bearer ${token}`;
+        config.headers = headers;
+      } else {
+        // Option B: No headers present — create a typed headers object
+        config.headers = { Authorization: `Bearer ${token}` } as AxiosRequestHeaders;
+      }
     }
 
     return config;

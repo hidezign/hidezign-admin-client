@@ -78,7 +78,8 @@
 //   }
 // };
 
-export const camelCaseToReadable = (str) => {
+export const camelCaseToReadable = (str: string): string => {
+    if (!str) return "";
     return str
         .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
         .replace(/^./, (match) => match.toUpperCase());

@@ -50,7 +50,7 @@ const AllProjects = () => {
       }
     } catch (error) {
       toast.error("Something went wrong while fetching projects", {
-        description: error.message || "",
+        description: (error as Error).message || "",
         duration: 5000,
         className: "bg-card text-card-foreground border-border",
       });
