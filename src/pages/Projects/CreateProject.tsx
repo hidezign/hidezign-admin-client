@@ -17,7 +17,6 @@ import { camelCaseToReadable } from "@/utils/additonalFunc";
 import { imageBase64Convertor } from "@/utils/convertToBase64";
 import { fieldValidator } from "@/utils/inputValidator";
 import { Link, useParams } from "react-router";
-import ResponsiveImage from "@/components/ui/images/ResponsiveImage";
 
 type ProjectForm = {
     projectTitle: string;

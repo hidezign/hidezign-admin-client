@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { GoLinkExternal } from "react-icons/go";
 import { IoTrashBin } from "react-icons/io5";
-import { Modal } from "@/components/ui/modal";
 import DangerModal from "@/components/ui/modal/DangerModal";
 import WarningModal from "@/components/ui/modal/WarningModal";
 // import React from "react";

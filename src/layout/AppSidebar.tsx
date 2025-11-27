@@ -6,10 +6,6 @@ import {
     ChevronDownIcon,
     GridIcon,
     HorizontaLDots,
-    ListIcon,
-    PageIcon,
-    TableIcon,
-    UserCircleIcon,
 } from "../icons";
 import { MdOutlineWorkOutline } from "react-icons/md";
 import { useSidebar } from "../context/SidebarContext";
