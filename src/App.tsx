@@ -23,7 +23,6 @@ import { Navigate } from "react-router";
 import { Toaster } from "sonner";
 import AllProjects from "./pages/Projects/AllProjects";
 import CreateProject from "./pages/Projects/CreateProject";
-import ProjectDetails from "./pages/Projects/ProjectDetails";
 import { RootState } from "./Redux/store";
 
 export default function App() {
