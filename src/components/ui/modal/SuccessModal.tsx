@@ -9,6 +9,16 @@ type Props = {
     confirmLabel?: string;
 };
 
+{/* <SuccessModal
+    isOpen={isOpen}
+    onClose={() => setIsOpen(false)}
+    onConfirm={() => console.log('confirmed')}
+    title="Well Done!"
+    message="Lorem ipsum..."
+    confirmLabel="Okay, Got It"
+/> */}
+
+
 const SuccessModal: React.FC<Props> = ({
     isOpen,
     onClose,

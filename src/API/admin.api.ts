@@ -89,7 +89,7 @@ export async function getAllProjects() {
 
 export async function createProject(payload: any) {
     try {
-        const response = await Axios.post(`${adminApi}/create-project`, payload);
+        const response = await Axios.post(`${adminApi}/project`, payload);
         return response.data;
     } catch (err) {
         const error = err as AxiosError<ErrorResponse>;
@@ -102,9 +102,37 @@ export async function createProject(payload: any) {
 
 export async function deleteProject(projectId: string){
     try{
-        const response = await Axios.delete(`${adminApi}/delete-project/${projectId}`);
+        const response = await Axios.delete(`${adminApi}/project/${projectId}`);
         return response.data;
 
+    } catch (err) {
+        const error = err as AxiosError<ErrorResponse>;
+        return error.response?.data || {
+            status: false,
+            message: "Something went wrong",
+        };
+    }
+}
+
+
+export async function getProjectDetails(projectId: string){
+    try {
+        const response = await Axios.get(`${adminApi}/project/${projectId}`);
+        return response.data;
+    } catch (err) {
+        const error = err as AxiosError<ErrorResponse>;
+        return error.response?.data || {
+            status: false,
+            message: "Something went wrong",
+        };
+    }
+}
+
+
+export async function updateProject(projectId: string, payload: any){
+    try {
+        const response = await Axios.put(`${adminApi}/project/${projectId}`, payload);
+        return response.data;
     } catch (err) {
         const error = err as AxiosError<ErrorResponse>;
         return error.response?.data || {

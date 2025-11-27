@@ -69,7 +69,7 @@ export default function App() {
                             />
                             <Route
                                 path="/project-details/:id"
-                                element={<ProjectDetails />}
+                                element={<CreateProject />}
                             />
 
                             {/* Forms */}

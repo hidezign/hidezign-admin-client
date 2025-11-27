@@ -1,4 +1,4 @@
-import { deleteProject, getAllProjects } from "@/API/admin.api";
+import { deleteProject, getAllProjects, updateProject } from "@/API/admin.api";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageMeta from "@/components/common/PageMeta";
 import PageLoader from "@/components/PageLoader";
@@ -14,6 +14,7 @@ import { GoLinkExternal } from "react-icons/go";
 import { IoTrashBin } from "react-icons/io5";
 import { Modal } from "@/components/ui/modal";
 import DangerModal from "@/components/ui/modal/DangerModal";
+import WarningModal from "@/components/ui/modal/WarningModal";
 // import React from "react";
 
 interface Order {
@@ -70,7 +71,9 @@ const AllProjects = () => {
 
   // const tableData: Order[]
 
-  const [deleteProjectCheck, setDeleteProjectCheck] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [showHomeWarningModal, setShowHomeWarningModal] = useState<boolean>(false);
+  const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
 
   const handleDelete = async (projectId: string) => {
@@ -91,9 +94,54 @@ const AllProjects = () => {
       });
     } finally {
       setLoading(false);
-      setDeleteProjectCheck(false);
+      setShowDeleteModal(false);
     }
   }
+
+  const updateShowHomeStatus = async (projectId: string, showOnHome: boolean) => {
+    try {
+      setLoading(true);
+      await updateProject(projectId, { isShowHome: showOnHome });
+      toast.success("Project show on home status updated successfully", {
+        duration: 5000,
+        className: "bg-card text-card-foreground border-border",
+      });
+    } catch (error) {
+      toast.error("Failed to update project show on home status", {
+        description: (error as Error).message || "",
+        duration: 5000,
+        className: "bg-card text-card-foreground border-border",
+      });
+    } finally {
+      setLoading(false);
+      setShowHomeWarningModal(false);
+      fetchAllProjects();
+    }
+  }
+  const updateActiveStatus = async (projectId: string, isActive: boolean) => {
+    try {
+      setLoading(true);
+      await updateProject(projectId, { isActive });
+      toast.success("Project active status updated successfully", {
+        duration: 5000,
+        className: "bg-card text-card-foreground border-border",
+      });
+    } catch (error) {
+      toast.error("Failed to update project active status", {
+        description: (error as Error).message || "",
+        duration: 5000,
+        className: "bg-card text-card-foreground border-border",
+      });
+    } finally {
+      setLoading(false);
+      setIsActiveModal(false);
+      fetchAllProjects();
+    }
+  }
+
+
+
+
 
   return (
     <>
@@ -197,24 +245,34 @@ const AllProjects = () => {
 
                       {/* Active Status */}
                       <TableCell className="px-4 py-3 font-medium text-gray-800 text-start text-theme-sm dark:text-white/90">
-                        {order?.isActive ? (
-                          <Badge color="success">Active</Badge>
-                        ) : (
-                          <Badge color="dark">Inactive</Badge>
-                        )}
+                        <div className="cursor-pointer" onClick={() => {
+                          setSelectedProjectId(order._id);
+                          setIsActiveModal(true);
+                        }}>
+                          {order?.isActive ? (
+                            <Badge color="success" >Active</Badge>
+                          ) : (
+                            <Badge color="dark">Inactive</Badge>
+                          )}
+                        </div>
                       </TableCell>
 
                       {/* Show on Home */}
-                      <TableCell className="px-4 py-3 font-medium text-gray-800 text-start text-theme-sm dark:text-white/90">
-                        {order?.isShowHome ? (
-                          <Badge color="success">
-                            <FaEye />
-                          </Badge>
-                        ) : (
+                      <TableCell className="px-4 py-3 font-medium text-gray-800 text-start text-theme-sm dark:text-white/90" >
+                        <div className="cursor-pointer" onClick={() => {
+                          setSelectedProjectId(order._id);
+                          setShowHomeWarningModal(true);
+                        }}>
+                          {order?.isShowHome ? (
+                            <Badge color="success">
+                              <FaEye />
+                            </Badge>
+                          ) : (
                             <Badge color="dark">
                               <FaEyeSlash />
                             </Badge>
-                        )}
+                          )}
+                        </div>
                       </TableCell>
 
                       {/* Live URL */}
@@ -252,16 +310,16 @@ const AllProjects = () => {
                         </Link>
 
                         {/* DELETE */}
-                          <Button
-                            variant="outline"
-                            size="sm"
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => {
-                            setDeleteProjectCheck(true);
+                            setShowDeleteModal(true);
                             setSelectedProjectId(order._id);
                           }}
-                            className="rounded-full text-red-600 border-red-600 hover:text-white hover:bg-red-600"
-                          >
-                            <IoTrashBin />
+                          className="rounded-full text-red-600 border-red-600 hover:text-white hover:bg-red-600"
+                        >
+                          <IoTrashBin />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -274,16 +332,32 @@ const AllProjects = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {deleteProjectCheck && (
-        <DangerModal
-          isOpen={deleteProjectCheck}
-          onClose={() => setDeleteProjectCheck(false)}
-          onConfirm={() => handleDelete(selectedProjectId)}
-          title="Delete Project"
-          message="Are you sure you want to delete this project? This action cannot be undone."
-          confirmLabel="Yes, Delete"
-        />
-      )}
+      <DangerModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => handleDelete(selectedProjectId)}
+        title="Delete Project"
+        message="Are you sure you want to delete this project? This action cannot be undone."
+        confirmLabel="Yes, Delete"
+      />
+
+      {/* Warning Modal*/}
+      < WarningModal
+        isOpen={showHomeWarningModal}
+        onClose={() => setShowHomeWarningModal(false)}
+        onConfirm={() => updateShowHomeStatus(selectedProjectId, !projects.find(p => p._id === selectedProjectId)?.isShowHome)}
+        title="Warning Alert!"
+        message="Are you sure you want to change the visibility of this project on the homepage?"
+        confirmLabel="Yes, Proceed"
+      />
+      < WarningModal
+        isOpen={isActiveModal}
+        onClose={() => setIsActiveModal(false)}
+        onConfirm={() => updateActiveStatus(selectedProjectId, !projects.find(p => p._id === selectedProjectId)?.isActive)}
+        title="Warning Alert!"
+        message="Are you sure you want to change the visibility of this project on the homepage?"
+        confirmLabel="Yes, Proceed"
+      />
     </>
   );
 };
