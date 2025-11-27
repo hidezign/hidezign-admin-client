@@ -216,7 +216,7 @@ const AllProjects = () => {
                       {/* Image */}
                       <TableCell className="px-5 py-4 sm:px-6 text-start">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
+                          <div className="corner-squircle rounded-2xl w-10 h-10 flex items-center justify-center overflow-hidden">
                             <img
                               width={40}
                               height={40}

@@ -5,6 +5,8 @@ layer(base);
 
 @import "tw-animate-css";
 
+@plugin "@toolwind/corner-shape";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
