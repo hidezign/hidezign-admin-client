@@ -1,6 +1,5 @@
 // src/utils/MainContent.ts
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosRequestHeaders } from "axios";
-import logo from "../assets/logo.svg";
 import { store } from "../Redux/store";
 // If you have RootState exported from your store, import it:
 // import type { RootState } from "../Redux/store";
