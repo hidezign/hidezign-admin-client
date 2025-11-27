@@ -29,22 +29,6 @@ export default function App() {
     // const dispatch = useDispatch();
     const { token, role } = useSelector((state: RootState) => state.auth);
 
-    // useEffect(() => {
-    //     const getAdminData = async () => {
-    //         const response = await adminProfile();
-    //         if (response?.success) {
-    //             dispatch(
-    //                 loginSuccess({
-    //                     user: response?.user,
-    //                     token: response?.token,
-    //                     role: response?.role,
-    //                 })
-    //             );
-    //         }
-    //     };
-    //     getAdminData();
-    // }, []);
-
     return (
         <>
             <Router>
@@ -57,8 +41,6 @@ export default function App() {
 
                             {/* Others Page */}
                             <Route path="/profile" element={<UserProfiles />} />
-                            <Route path="/calendar" element={<Calendar />} />
-                            <Route path="/blank" element={<Blank />} />
 
                             {/* My Pages */}
                             <Route path="/projects" element={<AllProjects />} />
@@ -70,30 +52,6 @@ export default function App() {
                                 path="/project-details/:id"
                                 element={<CreateProject />}
                             />
-
-                            {/* Forms */}
-                            <Route
-                                path="/form-elements"
-                                element={<FormElements />}
-                            />
-
-                            {/* Tables */}
-                            <Route
-                                path="/basic-tables"
-                                element={<BasicTables />}
-                            />
-
-                            {/* Ui Elements */}
-                            <Route path="/alerts" element={<Alerts />} />
-                            <Route path="/avatars" element={<Avatars />} />
-                            <Route path="/badge" element={<Badges />} />
-                            <Route path="/buttons" element={<Buttons />} />
-                            <Route path="/images" element={<Images />} />
-                            <Route path="/videos" element={<Videos />} />
-
-                            {/* Charts */}
-                            <Route path="/line-chart" element={<LineChart />} />
-                            <Route path="/bar-chart" element={<BarChart />} />
                         </Route>
                     )}
 
