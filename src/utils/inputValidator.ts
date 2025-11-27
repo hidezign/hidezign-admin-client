@@ -148,100 +148,17 @@ export function pincodeValidator(pincode?: string | number | null, required = tr
     return "";
 }
 
-export function gstValidator(gstNumber?: string | null): string {
-    if (!gstNumber) return "GST number can't be empty.";
+export const urlValidator = (value: string): string | null => {
+    if (!value) return null;
 
-    const gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/;
-    if (!gstPattern.test(gstNumber)) return "Please enter a valid GST number.";
-    return "";
-}
-
-export function panValidator(panNumber?: string | null): string {
-    if (typeof panNumber !== "string" || !panNumber.trim()) {
-        return "PAN number can't be empty.";
+    try {
+        new URL(value.trim().startsWith("http")
+            ? value.trim()
+            : "https://" + value.trim()
+        );
+        return null;
+    } catch {
+        return "Invalid URL format. Example: https://example.com";
     }
-    const pan = panNumber.trim().toUpperCase();
-    const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if (!panPattern.test(pan)) return "Please enter a valid PAN number.";
-    return "";
-}
+};
 
-/**
- * Validates an Indian IFSC code.
- */
-export function ifscValidator(ifsc?: string | null): string {
-    if (!ifsc) return "IFSC code can't be empty.";
-    const ifscPattern = /^[A-Z]{4}0[A-Z0-9]{6}$/;
-    if (!ifscPattern.test(ifsc)) return "Please enter a valid IFSC code.";
-    return "";
-}
-
-/**
- * Latitude and longitude validators accept string or number.
- */
-export function validateLatitude(latitude?: string | number | null): string {
-    if (latitude === undefined || latitude === null || latitude === "") return "Latitude can't be empty.";
-
-    const latNum = typeof latitude === "number" ? latitude : parseFloat(String(latitude).trim());
-    if (Number.isNaN(latNum)) return "Latitude must be a number.";
-    if (latNum < -90 || latNum > 90) return "Latitude must be between -90 and 90.";
-    if (!/^-?\d*\.?\d+$/.test(String(latitude).trim())) return "Latitude must be a valid number (integer or float).";
-    return "";
-}
-
-export function validateLongitude(longitude?: string | number | null): string {
-    if (longitude === undefined || longitude === null || longitude === "") return "Longitude can't be empty.";
-
-    const lonNum = typeof longitude === "number" ? longitude : parseFloat(String(longitude).trim());
-    if (Number.isNaN(lonNum)) return "Longitude must be a number.";
-    if (lonNum < -180 || lonNum > 180) return "Longitude must be between -180 and 180.";
-    if (!/^-?\d*\.?\d+$/.test(String(longitude).trim())) return "Longitude must be a valid number (integer or float).";
-    return "";
-}
-
-/* ----------------- Banking / UPI validators ----------------- */
-
-export function accountHolderNameValidator(accountHolderName?: string | null): string {
-    if (!accountHolderName) return "Account Holder Name can't be empty.";
-    return "";
-}
-
-export function accountNumberValidator(accountNumber?: string | number | null): string {
-    if (accountNumber === undefined || accountNumber === null || accountNumber === "") return "Account Number can't be empty.";
-    const accStr = String(accountNumber).trim();
-    const isValidAccountNumber = /^\d{9,16}$/; // between 9 and 16 digits
-    if (!isValidAccountNumber.test(accStr)) return "Account Number must be between 9 and 16 digits.";
-    return "";
-}
-
-export function ifscCodeValidator(ifscCode?: string | null): string {
-    if (!ifscCode) return "IFSC Code can't be empty.";
-    const isValidIfsc = /^[A-Za-z]{4}0[A-Za-z0-9]{5}$/;
-    if (!isValidIfsc.test(ifscCode)) return "Invalid IFSC Code.";
-    return "";
-}
-
-export function branchValidator(branch?: string | null): string {
-    if (!branch) return "Branch can't be empty.";
-    return "";
-}
-
-export function bankNameValidator(bankName?: string | null): string {
-    if (!bankName) return "Bank Name can't be empty.";
-    return "";
-}
-
-export function upiHolderNameValidator(upiHolderName?: string | null): string {
-    if (!upiHolderName) return "UPI Holder Name can't be empty.";
-    return "";
-}
-
-export function upiAddressValidator(upiAddress?: string | null): string {
-    if (!upiAddress) return "UPI Address can't be empty.";
-    return "";
-}
-
-export function upiQrCodeValidator(qrCode?: { name?: string } | null): string {
-    if (qrCode && qrCode.name && !/\.(jpg|jpeg|png)$/i.test(qrCode.name)) return "QR Code must be an image file (jpg, jpeg, or png).";
-    return "";
-}

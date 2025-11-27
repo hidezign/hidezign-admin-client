@@ -15,16 +15,16 @@ import Button from "@/components/ui/button/Button";
 
 import { camelCaseToReadable } from "@/utils/additonalFunc";
 import { imageBase64Convertor } from "@/utils/convertToBase64";
-import { fieldValidator } from "@/utils/inputValidator";
+import { fieldValidator, urlValidator } from "@/utils/inputValidator";
 import { Link, useParams } from "react-router";
 
 type ProjectForm = {
     projectTitle: string;
     projectDescription: string;
-    liveUrl: string;
+    liveUrl?: string;
     isActive: boolean;
     isShowHome: boolean;
-    technologies: string;
+    technologies?: string;
     image?: string; // base64 payload (without data:*;base64, prefix)
     file?: string; // base64 payload (pdf)
 };
@@ -88,25 +88,53 @@ const CreateProject: React.FC = () => {
 
     // Generic field updater
     const handleChange = (
-        eOrValue: React.ChangeEvent<HTMLInputElement> | string | boolean,
+        eOrValue:
+            | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            | string
+            | boolean,
         field: keyof ProjectForm
     ) => {
-        let value: ProjectForm[typeof field];
+        // Resolve raw value from event / string / boolean
+        let value: ProjectForm[typeof field] = "" as any;
 
-        // For text inputs we usually pass the event; for textarea we pass string; for switches boolean.
-        if (typeof eOrValue === "string" || typeof eOrValue === "boolean") {
+        if (typeof eOrValue === "boolean") {
             value = eOrValue as ProjectForm[typeof field];
-        } else {
-            // React.ChangeEvent<HTMLInputElement>
-            value = (eOrValue.target?.value ?? "") as ProjectForm[typeof field];
+        } else if (typeof eOrValue === "string") {
+            value = eOrValue.trim() as ProjectForm[typeof field];
+        } else if ("target" in eOrValue && eOrValue.target) {
+            const target = eOrValue.target as HTMLInputElement | HTMLTextAreaElement;
+
+            // If it's a file input, keep the File object (caller uses imageBase64Convertor separately)
+            if ((target as HTMLInputElement).files && (target as HTMLInputElement).files!.length) {
+                value = (target as HTMLInputElement).files![0] as any;
+            } else {
+                value = (target.value ?? "").trim() as ProjectForm[typeof field];
+            }
         }
 
-        // Validate the single field (uses your existing fieldValidator)
-        const error = typeof value === "boolean" ? "" : fieldValidator(String(value));
+        // Validation
+        let errorMessage = "";
 
+        // liveUrl is optional — validate only when non-empty
+        if (field === "liveUrl") {
+            if (typeof value === "string" && value !== "") {
+                const urlErr = urlValidator(String(value));
+                errorMessage = urlErr ?? "";
+            } else {
+                errorMessage = "";
+            }
+        } else if (typeof value === "boolean") {
+            // no validation for booleans
+            errorMessage = "";
+        } else {
+            // For other string fields use fieldValidator (it should return string error or null/empty)
+            errorMessage = fieldValidator(String(value ?? "")) || "";
+        }
+
+        // Update error state + form data
         setFormDataErr((prev) => ({
             ...prev,
-            [field]: error || "",
+            [field]: errorMessage,
         }));
 
         setFormData((prev) => ({
@@ -120,22 +148,77 @@ const CreateProject: React.FC = () => {
         let isValid = true;
         const errors: FormErrors = { ...formDataErr };
 
-        (Object.keys(formData) as Array<keyof ProjectForm>).forEach((field) => {
-            const value = formData[field];
+        // Helper to set error
+        const setError = (field: keyof ProjectForm, message: string) => {
+            errors[field] = message;
+            isValid = false;
+        };
 
-            // For boolean fields we don't require non-empty check
-            if (typeof value === "boolean") {
-                errors[field] = "";
-                return;
-            }
+        // projectTitle (required)
+        if (!formData.projectTitle || String(formData.projectTitle).trim() === "") {
+            setError("projectTitle", `${camelCaseToReadable("projectTitle")} can't be empty.`);
+        } else {
+            const e = fieldValidator(String(formData.projectTitle).trim());
+            errors.projectTitle = e || "";
+            if (e) isValid = false;
+        }
 
-            if (!value || String(value).trim() === "") {
-                errors[field] = `${camelCaseToReadable(String(field))} can't be empty.`;
-                isValid = false;
+        // projectDescription (required)
+        if (!formData.projectDescription || String(formData.projectDescription).trim() === "") {
+            setError("projectDescription", `${camelCaseToReadable("projectDescription")} can't be empty.`);
+        } else {
+            const e = fieldValidator(String(formData.projectDescription).trim());
+            errors.projectDescription = e || "";
+            if (e) isValid = false;
+        }
+
+        // liveUrl (optional — validate only when provided)
+        if (formData.liveUrl && String(formData.liveUrl).trim() !== "") {
+            const urlErr = urlValidator(String(formData.liveUrl).trim());
+            if (urlErr) {
+                setError("liveUrl", urlErr);
             } else {
-                errors[field] = "";
+                errors.liveUrl = "";
             }
-        });
+        } else {
+            errors.liveUrl = "";
+        }
+
+        // isActive / isShowHome (booleans) — always valid
+        errors.isActive = "";
+        errors.isShowHome = "";
+
+        // technologies (optional) — if provided, run light validator (not required)
+        if (formData.technologies && String(formData.technologies).trim() !== "") {
+            const techErr = fieldValidator(String(formData.technologies).trim());
+            errors.technologies = techErr || "";
+            if (techErr) isValid = false;
+        } else {
+            errors.technologies = "";
+        }
+
+        // image (optional) — if provided must be a string (base64) otherwise ask user to convert
+        if (formData.image) {
+            if (typeof formData.image === "string") {
+                // optional: you could validate base64 shape here, but keep simple
+                errors.image = "";
+            } else {
+                setError("image", "Please upload/select an image (convert to base64 if using JSON).");
+            }
+        } else {
+            errors.image = "";
+        }
+
+        // file (optional) — if provided must be a string (base64)
+        if (formData.file) {
+            if (typeof formData.file === "string") {
+                errors.file = "";
+            } else {
+                setError("file", "Please upload/select a PDF file (convert to base64 if using JSON).");
+            }
+        } else {
+            errors.file = "";
+        }
 
         setFormDataErr(errors);
         return isValid;
