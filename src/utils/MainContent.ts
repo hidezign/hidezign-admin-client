@@ -31,7 +31,7 @@ export interface BackendConfigType {
 
 export const MainContent: MainContentType = {
   AppName: "Hi Dezign",
-  AppLogo: logo,
+  AppLogo: "https://res.cloudinary.com/ds8buve4c/image/upload/v1764232690/logo_fie7dg.svg",
   Email: "hello@hidezign.com",
   DribbbleLink: "",
   LinkedInLink: "",

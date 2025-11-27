@@ -9,6 +9,7 @@ import {
 } from "../icons";
 import { MdOutlineWorkOutline } from "react-icons/md";
 import { useSidebar } from "../context/SidebarContext";
+import { MainContent } from "@/utils/MainContent";
 // import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
@@ -336,14 +337,14 @@ const AppSidebar: React.FC = () => {
                         <>
                             <img
                                 className="dark:hidden"
-                                src="/logo.svg"
+                                src={MainContent.AppLogo}
                                 alt="Logo"
                                 width={32}
                                 height={32}
                             />
                             <img
                                 className="hidden dark:block"
-                                src="/logo.svg"
+                                src={MainContent.AppLogo}
                                 alt="Logo"
                                 width={32}
                                 height={32}
@@ -351,7 +352,7 @@ const AppSidebar: React.FC = () => {
                         </>
                     ) : (
                         <img
-                                src="/logo.svg"
+                                src={MainContent.AppLogo}
                             alt="Logo"
                             width={32}
                             height={32}
